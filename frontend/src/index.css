@@ -1,18 +1,61 @@
 :root {
-  font-family: "Poppins", system-ui, Arial, sans-serif;
-  color: #1a1a1a;
-  background-color: #f5f5f7;
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+  color: #24352d;
+  background: #fafaf7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --verde: #205b43;
+  --verde-escuro: #164330;
+  --texto: #24352d;
+  --muted: #657268;
+  --borda: #e7eae2;
+  --suave: #f1f5ef;
 }
-
 * {
   box-sizing: border-box;
 }
-
 body {
   margin: 0;
+  min-width: 0;
 }
-
-/* Botões não herdam a fonte sozinhos — forçamos a mesma do site */
+button, input, textarea, select {
+  font: inherit;
+}
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
 button {
-  font-family: inherit;
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+a {
+  color: var(--verde);
+  text-underline-offset: 3px;
+}
+svg {
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+img {
+  max-width: 100%;
+}
+h1, h2, h3, p {
+  overflow-wrap: anywhere;
+}
+:focus-visible {
+  outline: 3px solid #b58a47;
+  outline-offset: 4px;
+}
+::selection {
+  background: #d4e8d1;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

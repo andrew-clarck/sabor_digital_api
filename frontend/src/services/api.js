@@ -6,17 +6,20 @@ async function requisitar(caminho, opcoes = {}) {
   let resposta;
   try {
     resposta = await fetch(`${API_URL}${caminho}`, opcoes);
-  } catch {
+  } catch (erro) {
+    if (erro.name === "AbortError") throw erro;
     throw new Error(
       "Não foi possível conectar à API. Verifique se o backend está em execução.",
+      { cause: erro },
     );
   }
 
   let dados;
   try {
     dados = await resposta.json();
-  } catch {
-    throw new Error("A API retornou uma resposta inválida.");
+  } catch (erro) {
+    if (erro.name === "AbortError") throw erro;
+    throw new Error("A API retornou uma resposta inválida.", { cause: erro });
   }
 
   if (!resposta.ok) {
@@ -28,6 +31,13 @@ async function requisitar(caminho, opcoes = {}) {
     );
     erro.status = resposta.status;
     throw erro;
+  }
+  if (
+    opcoes.method &&
+    opcoes.method !== "GET" &&
+    typeof window !== "undefined"
+  ) {
+    window.dispatchEvent(new Event("sabor-digital:atualizar"));
   }
   return dados;
 }
@@ -60,8 +70,8 @@ function ajustarProduto(produto) {
   };
 }
 
-export async function listarProdutos() {
-  const resposta = await requisitar("/produtos");
+export async function listarProdutos(signal) {
+  const resposta = await requisitar("/produtos", { signal, cache: "no-store" });
   if (!Array.isArray(resposta?.dados)) {
     throw new Error("A API não retornou uma lista válida de produtos.");
   }
@@ -96,8 +106,10 @@ export async function criarPedido(cliente, itens) {
   return validarPedido(resposta?.pedido);
 }
 
-export async function buscarPedido(id) {
-  return validarPedido(await requisitar(`/pedidos/${id}`));
+export async function buscarPedido(id, signal) {
+  return validarPedido(
+    await requisitar(`/pedidos/${id}`, { signal, cache: "no-store" }),
+  );
 }
 
 export function registrarUsuario(dados) {
@@ -138,15 +150,21 @@ export function excluirProduto(id, token) {
   });
 }
 
-export async function listarCardapios() {
-  const resposta = await requisitar("/cardapios");
+export async function listarCardapios(signal) {
+  const resposta = await requisitar("/cardapios", {
+    signal,
+    cache: "no-store",
+  });
   if (!Array.isArray(resposta?.dados))
     throw new Error("A API não retornou uma lista válida de cardápios.");
-  return resposta.dados;
+  return resposta.dados.map((menu) => ({ ...menu, id: Number(menu.id), disponivel: [true, 1, "1", "true"].includes(menu.disponivel) }));
 }
 
-export async function buscarCardapio(id) {
-  const resposta = await requisitar(`/cardapios/${id}`);
+export async function buscarCardapio(id, signal) {
+  const resposta = await requisitar(`/cardapios/${id}`, {
+    signal,
+    cache: "no-store",
+  });
   if (!Array.isArray(resposta?.dados?.produtos))
     throw new Error("A API não retornou um cardápio válido.");
   return {
@@ -173,9 +191,11 @@ export function excluirCardapio(id, token) {
   });
 }
 
-export async function listarPedidos(token) {
+export async function listarPedidos(token, signal) {
   const resposta = await requisitar("/pedidos", {
     headers: { Authorization: `Bearer ${token}` },
+    signal,
+    cache: "no-store",
   });
   if (!Array.isArray(resposta))
     throw new Error("A API não retornou uma lista válida de pedidos.");

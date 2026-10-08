@@ -1,116 +1,38 @@
 import { useState } from "react";
-import Selo from "./Selo";
-
-const QUANTIDADE_MAXIMA = 10;
-
+import Icone from "./Icone";
 export default function CardPrato({
   id,
   nome,
   preco,
   categoria,
   descricao,
-  vegetariano = false,
-  destaque = false,
   disponivel = true,
   imagem,
   onAdicionar,
-  enviando = false,
+  enviando = false
 }) {
   const [quantidade, setQuantidade] = useState(1);
-  const [mostrarDescricao, setMostrarDescricao] = useState(false);
-  const [curtidas, setCurtidas] = useState(0);
   const [imagemComErro, setImagemComErro] = useState(null);
-
-  const precoFormatado = preco.toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
-
-  function diminuir() {
-    if (quantidade > 1) {
-      setQuantidade(quantidade - 1);
-    }
-  }
-
-  function aumentar() {
-    if (quantidade < QUANTIDADE_MAXIMA) {
-      setQuantidade(quantidade + 1);
-    }
-  }
-
+  const [adicionado, setAdicionado] = useState(false);
   function adicionar() {
     if (enviando || !disponivel) return;
-    onAdicionar({ id, nome, preco, disponivel }, quantidade);
+    onAdicionar({
+      id,
+      nome,
+      preco,
+      disponivel
+    }, quantidade);
     setQuantidade(1);
+    setAdicionado(true);
   }
-  return (
-    <article className={destaque ? "card-prato destaque" : "card-prato"}>
-      {imagem && imagemComErro !== imagem && (
-        <img className="imagem-prato" src={imagem} alt={nome} loading="lazy" onError={() => setImagemComErro(imagem)} />
-      )}
-      <span className="categoria">{categoria}</span>
-      <h2>
-        {categoria === "Sobremesa" ? "🍰 " : ""}
-        {nome}
-      </h2>
-
-      <div className="selos">
-        {destaque && <Selo texto="Destaque" tipo="destaque" />}
-        {vegetariano && <Selo texto="Vegetariano" tipo="veg" />}
-        {!disponivel && <Selo texto="Esgotado" tipo="esgotado" />}
-      </div>
-
-      <p className="preco">{precoFormatado}</p>
-
-      {mostrarDescricao && <p className="descricao">{descricao}</p>}
-      <button
-        type="button"
-        className="btn-secundario"
-        onClick={() => setMostrarDescricao(!mostrarDescricao)}
-      >
-        {mostrarDescricao ? "Esconder descrição" : "Ver descrição"}
-      </button>
-
-      {disponivel ? (
-        <>
-          <div className="quantidade">
-            <button
-              type="button"
-              onClick={diminuir}
-              disabled={quantidade === 1 || enviando}
-              aria-label={`Diminuir quantidade de ${nome}`}
-            >
-              −
-            </button>
-
-            <span>{quantidade}</span>
-
-            <button
-              type="button"
-              onClick={aumentar}
-              disabled={quantidade === QUANTIDADE_MAXIMA || enviando}
-              aria-label={`Aumentar quantidade de ${nome}`}
-            >
-              +
-            </button>
-          </div>
-
-          <button type="button" className="btn-adicionar" onClick={adicionar} disabled={enviando}>
-            Adicionar ao pedido
-          </button>
-        </>
-      ) : (
-        <button type="button" className="btn-indisponivel" disabled>
-          Indisponível
-        </button>
-      )}
-      <button
-        type="button"
-        className="btn-secundario"
-        onClick={() => setCurtidas(curtidas + 1)}
-      >
-        ❤️ Curtir ({curtidas})
-      </button>
-    </article>
-  );
+  return <article className={`card-prato ${!disponivel ? "esgotado" : ""}`}>
+    <div className="visual-prato">{imagem && imagemComErro !== imagem ? <img src={imagem} alt={nome} loading="lazy" onError={() => setImagemComErro(imagem)} /> : <div className="imagem-placeholder"><span className="placeholder-prato"><Icone nome="pratos" tamanho={42} /></span><span>{categoria}</span></div>}{!disponivel && <span className="selo-esgotado">Indisponível</span>}</div>
+    <div className="conteudo-prato"><span className="categoria">{categoria}</span><h3>{nome}</h3><p className="descricao">{descricao || "Um sabor para o seu momento."}</p>
+      <div className="rodape-prato"><strong className="preco">{preco.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+          })}</strong>{disponivel && <div className="quantidade"><button type="button" onClick={() => setQuantidade(quantidade - 1)} disabled={quantidade === 1 || enviando} aria-label={`Diminuir quantidade de ${nome}`}><Icone nome="menos" tamanho={14} /></button><span>{quantidade}</span><button type="button" onClick={() => setQuantidade(quantidade + 1)} disabled={quantidade >= 10 || enviando} aria-label={`Aumentar quantidade de ${nome}`}><Icone nome="mais" tamanho={14} /></button></div>}</div>
+      <button type="button" className="btn-adicionar btn-adicionar-prato" onClick={adicionar} disabled={!disponivel || enviando}><Icone nome={adicionado ? "certo" : "mais"} tamanho={17} />{!disponivel ? "Indisponível" : adicionado ? "Adicionar mais" : "Adicionar ao pedido"}</button>
+    </div>
+  </article>;
 }

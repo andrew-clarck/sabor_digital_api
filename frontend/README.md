@@ -12,17 +12,23 @@ A API utiliza `https://sabor-digital-api.onrender.com` por padrão. Para usar o 
 
 ## Páginas
 
-- **Cardápio:** produtos reais, categorias, disponibilidade, imagens, montagem do pedido, envio e consulta do status.
+- **Cardápio:** busca por nome e descrição, filtros de categoria, disponibilidade, imagens, carrinho com controle de quantidade e acompanhamento do pedido.
 - **Criar conta / Entrar:** cadastro de cliente e autenticação. O token e os dados do usuário são guardados no navegador para manter a sessão. A senha não é armazenada.
-- **Produtos (administrador):** cadastro e edição com `FormData`, imagem JPEG/PNG de até 5 MB e exclusão com confirmação.
+- **Produtos (administrador):** indicadores, busca, filtro de disponibilidade e modal compartilhado para cadastro e edição com `FormData`, imagem JPEG/PNG de até 5 MB e exclusão com confirmação.
 - **Cardápios (administrador):** cadastro com seleção dos IDs em `produtos`, consulta dos produtos vinculados e exclusão.
 - **Pedidos (administrador):** listagem, detalhes, alteração de status e exclusão.
 
 As páginas administrativas são exibidas para contas cujo papel retornado pela API seja `admin`. O cadastro público do frontend não envia o campo `papel`. Para administrar, entre com uma conta de administrador já existente no backend.
 
-O carrinho guarda os IDs reais dos produtos. O envio contém apenas `cliente` e itens com `produto_id` e `quantidade` numérica inteira; o total definitivo é calculado pelo backend. Em caso de falha, os itens são mantidos para uma nova tentativa.
+O carrinho guarda os IDs reais dos produtos e é preservado ao recarregar a página. Preços e disponibilidade acompanham o catálogo atualizado; produtos removidos ou indisponíveis precisam ser retirados antes de finalizar. O envio contém apenas `cliente` e itens com `produto_id` e `quantidade` numérica inteira; o total definitivo é calculado pelo backend. Em caso de falha, os itens são mantidos para uma nova tentativa.
 
-Os dados de `src/data/cardapio.js` são uma referência da aula e não são utilizados pela aplicação integrada. As curtidas continuam locais, pois a API não possui uma rota para elas.
+## Atualização automática
+
+Produtos, cardápios, pedidos administrativos e o último pedido confirmado são consultados a cada 5 segundos enquanto a aba está visível. A aplicação consulta novamente ao retornar à aba e após operações bem-sucedidas, sem recarregar a página ou apagar formulários em preenchimento.
+
+Essa sincronização usa a API REST existente, não WebSockets: alterações feitas em outro dispositivo aparecem na próxima consulta. Requisições não se sobrepõem, são canceladas ao sair da tela e têm um limite de 30 segundos. Em falhas de conexão, os dados já carregados permanecem visíveis e a aplicação tenta novamente. Pedidos removidos e sessões expiradas recebem tratamento específico.
+
+Os dados de `src/data/cardapio.js` são uma referência da aula e não são utilizados pela aplicação integrada. A interface não exibe curtidas ou informações comerciais fictícias que a API não fornece.
 
 ## Verificar
 
