@@ -8,7 +8,7 @@ Aplicação React + Vite integrada à API Sabor Digital. Utiliza componentes fun
 2. Na pasta `frontend`, execute `npm ci` e depois `npm run dev`.
 3. Abra o endereço exibido pelo Vite, normalmente `http://localhost:5173`.
 
-A API utiliza `http://127.0.0.1:3000` por padrão. Para outro endereço, copie `.env.example` para `.env.local`, ajuste `VITE_API_URL` e reinicie o Vite. Essa variável contém apenas o endereço público da API.
+A API utiliza `https://sabor-digital-api.onrender.com` por padrão. Para usar o backend local ou outro endereço, copie `.env.example` para `.env.local`, ajuste `VITE_API_URL` e reinicie o Vite. Essa variável contém apenas o endereço público da API. Se `VITE_API_URL` estiver configurada na Vercel, ela tem prioridade sobre o endereço padrão; mantenha o valor atualizado e faça um novo deploy após alterá-la.
 
 ## Páginas
 
